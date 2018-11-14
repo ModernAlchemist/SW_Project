@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+  <head>
+    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">-->
+    
+    <link rel="stylesheet" href="./libs/pace/themes/white/pace-theme-flash.css">
+    <link rel="stylesheet" href="./libs/materialize/css/materialize.min.css?v=master">
+    <link rel="stylesheet" href="./assets/css/linea.min.css">
+    <link rel="stylesheet" href="./assets/css/moderat.min.css?v=5">
+    <!-- Favicons-->
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="./favicons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="./favicons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="./favicons/manifest.json">
+    <link rel="mask-icon" href="./favicons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="favicon.ico">
+    <meta name="msapplication-config" content="./favicons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+    <!-- Site title-->
+    <title>Moderat — Mark</title>
+    
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    
+    <!-- Include our Javascript -->
+    <!--<script src="/sdktest.js" defer></script>-->
+  </head>
+
+  <body class="mark dark">
+        <canvas id="spiral-buffer-mark" class="spiral-buffer"></canvas>
+        <main>
+            <!-- Navigation-->
+            <div class="navbar-fixed">
+                <nav>
+                    <div class="nav-wrapper">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col s12 l6">
+                                    <!-- Brand or logo-->
+                                    <a href="#!" class="brand">Brain Entrain</a>
+                                    <!-- Menu button visible on tablet and mobile--><span class="right show-on-medium-and-down hide-on-large-only"><a id="sidenav-toggle" href="#" data-activates="slide-out" class="sidenav-toggle">Menu</a></span></div>
+                                <div class="col s12 l6">
+                                    <!-- Desktop menu version-->
+                                    <ul class="hidden hide-on-med-and-down table-of-contents">
+                                        <li>
+                                            <a href="#services">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="#work">Work</a>
+                                        </li>
+                                        <li>
+                                            <a href="#prices">Prices</a>
+                                        </li>
+                                        <li>
+                                            <a href="#about">About</a>
+                                        </li>
+                                        <li>
+                                            <a href="#journal">Journal</a>
+                                        </li>
+                                        <li>
+                                            <a href="#contact">Contact</a>
+                                        </li>
+                                        <li>
+                                            
+                                        </li>
+                                    </ul>
+                                    <!-- Tablet and mobile menu-->
+                                    <ul id="slide-out" class="side-nav">
+                                        <li>
+                                            <a href="#services">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="#work">Work</a>
+                                        </li>
+                                        <li>
+                                            <a href="#prices">Prices</a>
+                                        </li>
+                                        <li>
+                                            <a href="#about">About</a>
+                                        </li>
+                                        <li>
+                                            <a href="#journal">Journal</a>
+                                        </li>
+                                        <li>
+                                            <a href="#contact">Contact</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <!-- Intro-->
+            <div class="container">
+                <div class="row">
+                    <div class="col s12  flow-text intro">
+                        <i class="fas fa-play" onclick="playTone()"></i>
+                        
+
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col s12  flow-text intro">
+                                    <div class="container">
+                                  <div id="login">
+                                    <a href="/login"><button type="button" class="btn btn-outline-primary" style="background-color: transparent;color:black;width:10em;outline:2px solid black;">Login</button></a>
+                                  </div>
+                                  <div id="loggedin">
+                                    <div id="user-profile">
+                                    </div>
+                                    <div id="oauth">
+                                    </div>
+                                    <button class="btn btn-default" id="obtain-new-token">Logout</button>
+                                  </div>
+                                </div>
+                        </div>
+                </div>
+            </div>
+    
+
+    <script id="user-profile-template" type="text/x-handlebars-template">
+    <div class="container">
+        <div class="row">
+                <div class="row">
+                    <div class="col s12  flow-text intro">
+                        <h1>PLAYLIST</h1>
+
+                    </div>
+                </div>
+            </div>
+      <div class="media">
+        <div class="pull-left">
+          <img class="media-object" width="150" src="{{images.0.url}}" />
+        </div>
+        <div class="media-body">
+          <dl class="dl-horizontal">
+          </dl>
+        </div>
+      </div>
+      </div>
+      </div>
+      
+    </script>
+
+    <script id="oauth-template" type="text/x-handlebars-template">
+
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script>
+      //(function() {
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
+        /*function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+          return hashParams;
+        }
+
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+        var oauthSource = document.getElementById('oauth-template').innerHTML,
+            oauthTemplate = Handlebars.compile(oauthSource),
+            oauthPlaceholder = document.getElementById('oauth');
+
+        var params = getHashParams();
+
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+        if (error) {
+          alert('There was an error during the authentication');
+        } else {
+          if (access_token) {
+            // render oauth info
+            oauthPlaceholder.innerHTML = oauthTemplate({
+              access_token: access_token,
+              refresh_token: refresh_token
+            });
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+
+                  $('#login').hide();
+                  $('#loggedin').show();
+                }
+            });
+          } else {
+              // render initial screen
+              $('#login').show();
+              $('#loggedin').hide();
+          }
+
+          document.getElementById('obtain-new-token').addEventListener('click', function() {
+            $.ajax({
+              url: '/refresh_token',
+              data: {
+                'refresh_token': refresh_token
+              }
+            }).done(function(data) {
+              access_token = data.access_token;
+              oauthPlaceholder.innerHTML = oauthTemplate({
+                access_token: access_token,
+                refresh_token: refresh_token
+              });
+            });
+            
+            
+          }, false);
+        }
+      })();*/
+    </script>
+    </main>
+  </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.3.11/Tone.min.js"></script>
+    <script src="./libs/pace/pace.js" data-pace-options="{&quot;eventLag&quot;: false}"></script>
+    <script src="./libs/jquery/jquery.min.js"></script>
+    <script src="./libs/lodash/lodash.min.js"></script>
+    <script src="./libs/materialize/js/materialize.min.js?v=master"></script>
+    <!-- Oona scripts-->
+    <script src="./assets/js/spiral-buffer-mark.js"></script>
+    <script src="./assets/js/spiral-buffer-gita.js"></script>
+    
+    <script src="./assets/js/config.js"></script>
+    <script src="./assets/js/moderat.js"></script>
+    <script src="./assets/js/isotone.js"></script>
+    <script src="./bower_components/jquery/jquery.min.js"></script>
+    <!--<script src="./assets/js/spotify-web-api-js.js"></script>-->
+    <!--<script src="./assets/js/spot.js"></script>-->
+    <script src="./p5.min.js"></script>
+    <script src="./addons/p5.dom.min.js"></script>
+    <script src="./addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
+</html>
+
