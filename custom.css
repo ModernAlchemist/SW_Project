@@ -1,0 +1,49 @@
+i {
+  font-size: 1.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+input[type=range]
+{
+   border: none; 
+}
+input[type=range]+.thumb {
+   background-color: transparent;
+   color: transparent;
+}
+.progress-bar, .progress-bar-danger, 
+.progress-bar-info, .progress-bar-success, 
+.progress-bar-warning {
+    background-color: black;
+}
+.intro {
+   margin-top: 0.5em; 
+   
+}
+.vol-control {
+   width: 5em; 
+}
+
+.fa-volume-up {
+  font-size: 0.7em; 
+  width: 1em;
+}
+.track {
+    cursor:pointer;
+}
+.track:hover {
+    color: indianred;
+}
+
+#playlistReminder {
+    /* ... */
+    position: absolute;
+    bottom: 0;
+    /* ... */
+}
+
+.fa-arrow-down {
+   font-size: 90%; 
+   padding-left: 0;
+}

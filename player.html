@@ -8,11 +8,28 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <!-- Meta description, aim for about 150 characters-->
         <meta name="description" content="This theme is a very beautiful and minimalistic theme with a gorgeous animation that will make the user remember your website and want to come back.">
-        <!-- Stylesheets-->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap -->
+        <link href="https://sp-bootstrap.global.ssl.fastly.net/8.0.0/sp-bootstrap.min.css" rel="stylesheet" />
+        <!-- JQuery -->
+        <script
+          src="https://code.jquery.com/jquery-3.2.1.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+          crossorigin="anonymous"></script>
+    
+        <!-- Include the Web Playback SDK -->
+        <script src="https://sdk.scdn.co/spotify-player.js"></script>
+        <!-- Include our Javascript -->
+        <script src="/player.js" defer></script>
+      
+        <!-- Styling -->
         <link rel="stylesheet" href="./libs/pace/themes/white/pace-theme-flash.css">
         <link rel="stylesheet" href="./libs/materialize/css/materialize.min.css?v=master">
         <link rel="stylesheet" href="./assets/css/linea.min.css">
         <link rel="stylesheet" href="./assets/css/moderat.min.css?v=5">
+        <link rel="stylesheet" href="custom.css">
+
         <!-- Favicons-->
         <link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" href="./favicons/favicon-32x32.png" sizes="32x32">
@@ -25,6 +42,8 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
         <!-- Site title-->
         <title>Moderat — Mark</title>
+       
+       
     </head>
     <body class="mark dark">
         <canvas id="spiral-buffer-mark" class="spiral-buffer"></canvas>
@@ -41,7 +60,7 @@
                                     <!-- Menu button visible on tablet and mobile--><span class="right show-on-medium-and-down hide-on-large-only"><a id="sidenav-toggle" href="#" data-activates="slide-out" class="sidenav-toggle">Menu</a></span></div>
                                 <div class="col s12 l6">
                                     <!-- Desktop menu version-->
-                                    <ul class="hidden hide-on-med-and-down table-of-contents">
+                                    <ul class="hide-on-med-and-down table-of-contents">
                                         <li>
                                             <a href="#services">Services</a>
                                         </li>
@@ -91,39 +110,65 @@
             <!-- Intro-->
             <div class="container">
                 <div class="row">
-                    <div class="col s12  flow-text intro">
-                        <i class="fas fa-play" onclick="playTone()"></i>
-
+                    <div class="col s12  l12 text-center flow-text intro">
+                        <img id="current-track" style="margin: 0 auto;"/>
+                        <h3 id="current-track-name"></h3>
+                        <i class="fas fa-step-backward" onclick="backPlayer()"></i>
+                        <i class="far fa-pause-circle" onclick="pausePlayer()"></i>
+                        <i class="fas fa-step-forward" onclick="nextPlayer()"></i>
+                        <div style="margin: 0 auto; width: 20%;">
+                            <!--<i class="fas fa-volume-up"></i>-->
+                            <input class="vol-control" id="vol-control" type="range" min="0" max="100" step="1" oninput="SetVolume(this.value)" onchange="SetVolume(this.value)"/>
+                        </div>
+                        
+                          
+                        <div>
+                          
+                 
+                        <h6 id="playedDuration">00:00:00</h6>
+                        <h6 id="leftDuration">00:00:00</h6>
+                      </div>
+                        <div class="progress">
+                          <div id="myBar" class="progress-bar" role="progressbar" aria-valuenow="70"
+                              aria-valuemin="0" aria-valuemax="100" style="width:14em">
+                          </div>
+                        </div>
+                      
+                        <p>Toggle Isochronic Tone: <i class="fas fa-toggle-on" id="toggleTone"></i></p>
+                        
                     </div>
                 </div>
+              <div id="playlistReminder">
+                <h3>PLAYLIST <i class="fas fa-arrow-down"></i></h3>
+              </div>
             </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col s12  flow-text intro">
-                        <h1>PLAYLIST</h1>
-
-                    </div>
+            <div class="container playlistDiv">
+                <h1>PLAYLIST - <span class="playlistCategory"></span></h1>
+                <div id="playlistInfo" style="overflow-y:scroll; height:30em;">
+                  
                 </div>
             </div>
         </main>
         <!-- Libraries-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.3.11/Tone.min.js"></script>
         <script src="./libs/pace/pace.js" data-pace-options="{&quot;eventLag&quot;: false}"></script>
+        <!-- Play Isochronic Tone -->
+        <script src="./isotone.js"></script>
         <script src="./libs/jquery/jquery.min.js"></script>
         <script src="./libs/lodash/lodash.min.js"></script>
         <script src="./libs/materialize/js/materialize.min.js?v=master"></script>
         <!-- Oona scripts-->
         <script src="./assets/js/spiral-buffer-mark.js"></script>
-        <!--<script src="./assets/js/spiral-buffer-gita.js"></script>-->
         <script src="./assets/js/config.js"></script>
         <script src="./assets/js/moderat.js"></script>
         <script src="./assets/js/isotone.js"></script>
-        <script src="./bower_components/jquery/jquery.min.js"></script>
-        <script src="./assets/js/spotify-web-api-js.js"></script>
-        <script src="./assets/js/spot.js"></script>
+        <!--<script src="./bower_components/jquery/jquery.min.js"></script>-->
         <script src="./p5.min.js"></script>
         <script src="./addons/p5.dom.min.js"></script>
         <script src="./addons/p5.sound.min.js"></script>
         <script src="sketch.js"></script>
+        <!-- Create sine wave visual that corresponds with Frequency-->
+        <!--<script src="sine.js"></script>-->
+        
     </body>
 </html>

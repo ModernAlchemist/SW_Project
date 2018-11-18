@@ -189,6 +189,10 @@ $(function() {
     function ease(val, to, gain) {
         return val + (to-val) * gain;
     }
+  
+  
+  
+  
 
     // Ease all the numeric properties of an object to the
     // value of the same property on a target object
@@ -202,5 +206,7 @@ $(function() {
             }
         });
     }
+  
+    
 
 });
