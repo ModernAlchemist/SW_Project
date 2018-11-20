@@ -9,6 +9,7 @@ var isoRelease;
 var isoDecay;
 var filter;
 var toneOff = false;
+var tonePaused = false;
 
 function setIsotone(frequency,tone)
 {
@@ -49,7 +50,10 @@ function setIsotone(frequency,tone)
         }
         else
         {
-            iso = setInterval(toneOnOff, isoFreqMs);
+            if(!tonePaused)
+            {
+              iso = setInterval(toneOnOff, isoFreqMs);
+            }
             $(this).removeClass("fas fa-toggle-off");
             $(this).addClass("fas fa-toggle-on");
         }
@@ -60,11 +64,13 @@ function toneOnOff() {
     env.triggerAttackRelease(0.05);
 }
 function playTone() {
+    tonePaused = false;
     if(!toneOff)
     {
       iso = setInterval(toneOnOff, isoFreqMs);
     }
 }
 function pauseTone() {
+    tonePaused = true;
     clearInterval(iso);
 }

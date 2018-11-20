@@ -47,3 +47,6 @@ input[type=range]+.thumb {
    font-size: 90%; 
    padding-left: 0;
 }
+.playlistDiv {
+   margin-top: 6em; 
+}

@@ -32,8 +32,9 @@ const scopes = [
 if (!_token) {
     window.location = `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
 }
-else
+else if(!userExists)
 {
+    
     var pLists = [];
     var tracks = [];
     var trackNames = [];
@@ -42,9 +43,34 @@ else
     var numTracks;
     var offset = 10;
     var userName;
+    var userExists;
 
+    $.ajax({
+       url: "https://api.spotify.com/v1/me",
+       type: "GET",
+       async: false,
+       beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
+       success: function(data) {  
+         console.log("Got id!");
+         userName = data.id;
+       }
+      }); 
+  $.ajax({
+     url: "https://accurate-education.glitch.me/userexists?user="+userName,
+     type: "GET",
+     async: false,
+     success: function(data) { 
+       console.log(data);
+       userExists = data.userExists;
+     }
+  });
+  console.log("USERExists: ",userExists);
+  
 
-
+  
+  if(!userExists)
+  {
+  console.log("Not sorting");
     getPlaylists(0);
 
     while(numpLists == 50)
@@ -80,31 +106,48 @@ else
 
 
 
-    $.ajax({
-       url: "https://api.spotify.com/v1/me",
-       type: "GET",
-       async: false,
-       beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
-       success: function(data) {  
-         console.log("Got id!");
-         userName = data.id;
-       }
-      }); 
-
-    $.ajax({
-       url: "https://accurate-education.glitch.me/sort",
-       type: "POST",
-       async: false,
-       data: JSON.stringify({"audio": audioFeatures,"user": userName}),
-       dataType: 'json',
-       contentType: "application/json; charset=utf-8",
-       success: function(data) {  
-         console.log("Sent to sort!");
-       },
-       error: function(e) {
-         console.log(e);
-       }
-    })
+    
+  audioFeatures = audioFeatures[0].audio_features;
+   console.log(audioFeatures);
+   var audioLength = audioFeatures.length;
+  for(var i = 0; i < audioLength; i += 50)
+  {
+    if(i+ 50 > audioLength)
+    {
+        $.ajax({
+           url: "https://accurate-education.glitch.me/sort",
+           type: "POST",
+           async: false,
+           data: JSON.stringify({"audio": audioFeatures.slice(i,audioLength),"user": userName}),
+           dataType: 'json',
+           contentType: "application/json; charset=utf-8",
+           success: function(data) {  
+             console.log("Sent to sort!");
+           },
+           error: function(e) {
+             console.log(e);
+           }
+        });
+    }
+    else
+    {
+        $.ajax({
+           url: "https://accurate-education.glitch.me/sort",
+           type: "POST",
+           async: false,
+           data: JSON.stringify({"audio": audioFeatures.slice(i,i+50),"user": userName}),
+           dataType: 'json',
+           contentType: "application/json; charset=utf-8",
+           success: function(data) {  
+             console.log("Sent to sort!");
+           },
+           error: function(e) {
+             console.log(e);
+           }
+        });
+    }
+  }
+  }
 }
 
 function getPlaylists(offset)

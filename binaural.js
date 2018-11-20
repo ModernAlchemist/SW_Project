@@ -4,7 +4,8 @@ var osc1;
 var osc2;
 var panner1 = new Tone.Panner(-1,-12).toMaster();
 var panner2 = new Tone.Panner(1,-12).toMaster();
-var toneOff = false;
+var binauralOff = false;
+var binauralPaused = false;
 
 function setBinaural(frequency,beat)
 {
@@ -17,37 +18,63 @@ function setBinaural(frequency,beat)
     osc2.volume.value = -25;
 
 }
-setBinaural(300,20);
+//setBinaural(300,20);
 
-    $(document).ready(function(){
+$(document).ready(function(){
       
     $('#toggleBinaural').on('click', function(){ 
       console.log("Tone");
-        if($(this).hasClass("fa-toggle-on"))
+        if($(this).hasClass("fa-toggle-on")) //Turn off
         {
-            clearInterval(iso);
-            toneOff = true;
+            osc1.mute = true;
+            osc2.mute = true;
             $(this).removeClass("fas fa-toggle-on");
             $(this).addClass("fas fa-toggle-off");
+            binauralOff = true;
         }
-        else
+        else //Turn on
         {
-            iso = setInterval(toneOnOff, isoFreqMs);
+            if(!binauralPaused)
+            {
+              osc1.mute = false;
+              osc2.mute = false;
+            }
             $(this).removeClass("fas fa-toggle-off");
             $(this).addClass("fas fa-toggle-on");
         }
     });
-    });
+  
+  
+  
+  
+
       
-function toneOnOff() {
-    env.triggerAttackRelease(0.05);
+    $('#playPause').on('click', function(){ 
+
+        if($(this).hasClass("fa-pause-circle")) //Turn off
+        {
+            $(this).removeClass("far fa-pause-circle");
+            $(this).addClass("far fa-play-circle");
+        }
+        else //Turn on
+        {
+            $(this).removeClass("far fa-play-circle");
+            $(this).addClass("far fa-pause-circle");
+        }
+    });
+});
+
+      
+function playBinaural() {
+  binauralPaused = false;
+  if(!binauralOff)
+  {
+    osc1.mute = false;
+    osc2.mute = false;
+  }
 }
-function playTone() {
-    if(!toneOff)
-    {
-      iso = setInterval(toneOnOff, isoFreqMs);
-    }
-}
-function pauseTone() {
-    clearInterval(iso);
+function pauseBinaural() {
+    osc1.mute = true;
+    osc2.mute = true;
+    binauralPaused = true;
 }

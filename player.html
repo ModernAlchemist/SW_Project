@@ -114,7 +114,7 @@
                         <img id="current-track" style="margin: 0 auto;"/>
                         <h3 id="current-track-name"></h3>
                         <i class="fas fa-step-backward" onclick="backPlayer()"></i>
-                        <i class="far fa-pause-circle" onclick="pausePlayer()"></i>
+                        <i id="playPause" class="far fa-pause-circle" onclick="pausePlayer()"></i>
                         <i class="fas fa-step-forward" onclick="nextPlayer()"></i>
                         <div style="margin: 0 auto; width: 20%;">
                             <!--<i class="fas fa-volume-up"></i>-->
@@ -133,14 +133,12 @@
                               aria-valuemin="0" aria-valuemax="100" style="width:14em">
                           </div>
                         </div>
-                      
-                        <p>Toggle Isochronic Tone: <i class="fas fa-toggle-on" id="toggleTone"></i></p>
                         
+                        Toggle Isochronic Tone: <i class="fas fa-toggle-on" id="toggleTone"></i>
+                        Toggle Binaural Beat: <i class="fas fa-toggle-on" id="toggleBinaural"></i>
                     </div>
                 </div>
-              <div id="playlistReminder">
-                <h3>PLAYLIST <i class="fas fa-arrow-down"></i></h3>
-              </div>
+              
             </div>
             <div class="container playlistDiv">
                 <h1>PLAYLIST - <span class="playlistCategory"></span></h1>
@@ -148,12 +146,16 @@
                   
                 </div>
             </div>
+          <div id="playlistReminder">
+                <h3>PLAYLIST <i class="fas fa-arrow-down"></i></h3>
+              </div>
         </main>
         <!-- Libraries-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.3.11/Tone.min.js"></script>
         <script src="./libs/pace/pace.js" data-pace-options="{&quot;eventLag&quot;: false}"></script>
         <!-- Play Isochronic Tone -->
         <script src="./isotone.js"></script>
+        <script src="./binaural.js"></script>
         <script src="./libs/jquery/jquery.min.js"></script>
         <script src="./libs/lodash/lodash.min.js"></script>
         <script src="./libs/materialize/js/materialize.min.js?v=master"></script>
@@ -162,6 +164,7 @@
         <script src="./assets/js/config.js"></script>
         <script src="./assets/js/moderat.js"></script>
         <script src="./assets/js/isotone.js"></script>
+       
         <!--<script src="./bower_components/jquery/jquery.min.js"></script>-->
         <script src="./p5.min.js"></script>
         <script src="./addons/p5.dom.min.js"></script>
