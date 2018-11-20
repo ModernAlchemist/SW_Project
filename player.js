@@ -26,16 +26,40 @@ var taskCategory = getParameterByName("taskCategory"); //The category of the pla
 
 $('.playlistCategory').html(taskCategory.toUpperCase());//taskCategory.toUpperCase());
 
+var playlist = [];
+var playlistObject;
+var userName;
+ $.ajax({
+       url: "https://api.spotify.com/v1/me",
+       type: "GET",
+       async: false,
+       beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
+       success: function(data) {  
+         console.log("Got id!");
+         userName = data.id;
+       }
+      }); 
 
-//Do stuff here
-
-
+$.ajax({
+     url: "https://accurate-education.glitch.me/fetchplaylist?search="+taskCategory+"&user="+userName,
+     type: "GET",
+     async: false,
+     success: function(data) { 
+       console.log(data[0]);
+       console.log("Got tracks");
+       playlistObject = data;
+     }
+});
+for(var i = 0; i < playlistObject.length; i++)
+{
+    playlist.push(playlistObject[i].Song_ID);
+}
 
 
 
 //Retrieve playlist in array form like below. Of course it'll probably be longer than this.
 //Using this as a dummy for right now.
-var playlist = ["7sqii6BhIDpJChYpU3WjwS","6wMTeVootJ8RdCLNOZy5Km","0LtOwyZoSNZKJWHqjzADpW","5lfp2QjgatdihCll6tFlMA","7KRQoq9GeWeCm0ZAXg5XMb","5h27GYpKZWWhFov8fOunF6","70We9AqHenA4jcmXmKzJnZ","43QhrhgRrH9NWy6eoUro4X","7L59A2cUZOx5IVuGnrhRkA"];
+//playlist = ["7sqii6BhIDpJChYpU3WjwS","6wMTeVootJ8RdCLNOZy5Km","0LtOwyZoSNZKJWHqjzADpW","5lfp2QjgatdihCll6tFlMA","7KRQoq9GeWeCm0ZAXg5XMb","5h27GYpKZWWhFov8fOunF6","70We9AqHenA4jcmXmKzJnZ","43QhrhgRrH9NWy6eoUro4X","7L59A2cUZOx5IVuGnrhRkA"];
 
 var playlistString = "[";
 var trackInfo = "";
@@ -74,6 +98,7 @@ var trackPaused = false;
 var totalProgress = 0;
 var deviceId;
 var tonePlaying = false;
+var binauralPlaying = false;
 
 window.onSpotifyPlayerAPIReady = () => {
   player = new Spotify.Player({
@@ -91,6 +116,7 @@ window.onSpotifyPlayerAPIReady = () => {
   var lastTrack = "start";
   var newTrack;
   var trackDuration;
+  var songKey;
 
   player.on('player_state_changed', state => {
     console.log(state);
@@ -100,9 +126,12 @@ window.onSpotifyPlayerAPIReady = () => {
     
     if(lastTrack != newTrack)
     {
+      songKey = getSongKey(state.track_window.current_track.id);
+      console.log("Key of Song: ", songKey);
       clearInterval(trackDuration);
       totalProgress = (state.duration/1000);
       setIsotone(2,220);
+      setBinaural(300,20);
       var seconds = Math.round((state.duration/1000)%60);
       var minutes = Math.round((state.duration/1000)/60);
       var hours = Math.round((state.duration/1000)/3600);
@@ -120,13 +149,23 @@ window.onSpotifyPlayerAPIReady = () => {
       trackPaused = true;
       pauseTone();
       tonePlaying=false;
+      
+      pauseBinaural();
+      binauralPlaying=false;
     }
     else
     {
-      if(!tonePlaying)
+      if(!tonePlaying )
       {
+        console.log("Play tone");
         playTone();
       }
+      if(!binauralPlaying)
+      {
+        console.log("Play binaural");
+        playBinaural(); 
+      }
+      binauralPlaying = true;
       tonePlaying = true;
       trackPaused = false;
     }
@@ -170,10 +209,25 @@ function play(device_id) {
   });
 }
 
+function getSongKey(songId)
+{
+    var songKey;
+    $.ajax({
+     url: "https://accurate-education.glitch.me/fetchKey?song="+songId,
+     type: "GET",
+     async: false,
+     success: function(data) { 
+       console.log(data.songKey[0].Key);
+       songKey = data.songKey[0].Key;
+     }
+  });
+  return songKey;
+}
 function getTrackInfo(tracks)
 {
+
     $.ajax({
-     url: "https://api.spotify.com/v1/tracks?ids="+tracks+"&market=ES",
+     url: "https://api.spotify.com/v1/tracks?ids="+tracks,
      type: "GET",
      beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
      success: function(data) { 
@@ -185,7 +239,10 @@ function getTrackInfo(tracks)
           data.tracks[i].name+ ' - ' +  data.tracks[i].album.artists[0].name +              
           '</div></div></div>');
        }
-     }
+     },
+      error: function(err){
+        console.log(err);
+    }
     });
 }
 function pausePlayer() {
@@ -267,7 +324,7 @@ function seekTrack(event){
 
 
 $(window).bind('scroll', function() {
-     if ($(window).scrollTop() > 50) {
+     if ($(window).scrollTop() > 75) {
          $('#playlistReminder').hide();
      }
      else {
