@@ -1,12 +1,27 @@
-var frequency1;
+/***************************************Binaural.js*******************************/
+// This script is used for producing a binaural beat in the player that matches the key
+// of the song. This is done using the Tone.js library. A binaural beat is an illusionary
+// frequency created in the brain that occurs when two pure tones of slightly differing
+// frequencies are played in the opposing ears. The difference is the binaural beat.
+// We accomplish this here by panning one of our pure tones to the left ear, and the other
+// to the right ear. We allow for an average frquency and a beat to be defined for the 
+// creation of this binaural beat. This will allow us to customize the sound from our
+// player. Here we also allow for the toggle of the beat which is displayed as an interface
+// on the player.html.
+//
+// NOTE: THIS CAN ONLY BE HEARD WITH HEADPHONES
+/*********************************************************************************/
+
+var frequency1; //frequencies that will create binaural beat
 var frequency2;
-var osc1;
+var osc1; //Pure tones
 var osc2;
-var panner1 = new Tone.Panner(-1,-12).toMaster();
-var panner2 = new Tone.Panner(1,-12).toMaster();
+var panner1 = new Tone.Panner(-1,-12).toMaster(); //We connect this to osc1
+var panner2 = new Tone.Panner(1,-12).toMaster();  //We connect this to osc2
 var binauralOff = false;
 var binauralPaused = false;
 
+//This where we create and initialize the binaural beat and calculate the need difference.
 function setBinaural(frequency,beat)
 {
     
@@ -18,8 +33,9 @@ function setBinaural(frequency,beat)
     osc2.volume.value = -25;
 
 }
-//setBinaural(300,20);
 
+
+//Here we provide the ability for toggling the beat.
 $(document).ready(function(){
       
     $('#toggleBinaural').on('click', function(){ 

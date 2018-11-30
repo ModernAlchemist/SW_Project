@@ -1,11 +1,17 @@
-// server.js
-// where your node app starts
-// Get the hash of the url
+/********************************************Server.js*******************************************/
+/*********************************************Backend********************************************/
+// This is a Node.js/Express backend service. Node.js is a backend engine that allows for the running
+// of JS outside of the browser. Express.js is a framework for node for serving applications. We use
+// the two to create a server and serve up pages as well as services to be called from those pages.
+// Here we take care of all database operations using SQLite. SQLite is being used due to its 
+// ability to be embedded in the project file. There is also good Node support for SQLite. 
+// We take care of the processing of playlists and user verification here as services. 
+/***********************************************************************************************/
 
-// init project
+//Node libraries
 const express = require('express');
 const app = express();
-const request = require('request'); // "Request" library
+const request = require('request'); 
 const cors = require('cors');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
@@ -16,34 +22,18 @@ var engine = require('consolidate')
 app.engine('html', engine.nunjucks);
 app.set('view engine', 'html');
 app.set('views', __dirname );
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
 
-// http://expressjs.com/en/starter/static-files.html
-
-
-// init sqlite db
+//SQLite configuration
 var fs = require('fs');
 var dbFile = './.data/Brain.db';
 var exists = fs.existsSync(dbFile);
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(dbFile);
 
-//**************************AZAEL***************************//
-//**********************************************************//
-//Here is where we initialize the DB, if does not exist.
-//So You can replace/alter the code to set up our DB.
-//This is from an template from this website.
-//You may not need all this. Or you may need more code to initialize
-//(most likely since we will have more than one table).
-//You can look at the small example here:
-//https://glitch.com/edit/#!/striped-parent
 
-
-// if ./.data/sqlite.db does not exist, create it, otherwise print records to console
 db.serialize(function(){
-  // Working on the route at the bottom
-  // 
+
+ //If the DB does not, it will be created.
  if(!exists)
  {
     db.run('Drop Table SONG');
@@ -57,25 +47,15 @@ db.serialize(function(){
 	  db.run('create TABLE USER_LIBRARY (Username TEXT, Song_ID TEXT UNIQUE)');
 
     db.run('Drop Table PLAYLIST');
-	  db.run('create TABLE PLAYLIST (Username TEXT , Task_ID INTEGER, Song_ID TEXT)');
-    
+	  db.run('create TABLE PLAYLIST (Username TEXT , Task_ID INTEGER, Song_ID TEXT)');   
  }
 });
-	  // db.run('drop TABLE if exists TASK');
-	  // db.run('create TABLE TASK (Task_ID INTEGER PRIMARY KEY, Task_Name TEXT)');
-	  // db.serialize(function() {
-	  // db.run('INSERT INTO TASK VALUES (1 , "Meditation" ), (2 , "Exercise" ), ( 3 , "Sleep" ), ( 4 , "Memory" ), (5 , "Writing" ), ( 6 , "Problem Solving" ), ( 7 , "Creativity" ), ( 8 , "Abstract" );')
-	  // });
-    // db.each('select * from TASK', function(err, row) {
-    //   if ( row ) {
-    //     console.log('record:', row);
-    //   }
-    // });
+
 
 
 //Middleware
-app.use(express.static(__dirname + '/'));//Attach static files(CSS,SCSS,etc)
-app.use(bodyParser.json());              //Used for parsing incoming data from requests
+app.use(express.static(__dirname + '/')); //Attach static files(CSS,SCSS,etc)
+app.use(bodyParser.json());               //Used for parsing incoming data from requests
 
 //Routing to our different pages. 
 //Links placed in page that correspond to each of these
@@ -93,6 +73,7 @@ app.get('/sort', function(request, response) {
   response.send("seen");
 });
 
+//Called as a service to check if the user is in our database as bring processed already
 app.get('/userexists',function(request,response) {
   
   console.log("Seeing if user exists...");
@@ -108,15 +89,13 @@ app.get('/userexists',function(request,response) {
            }
         }
         response.send({userExists:userExists});
-        
-        console.log("userExists: " + userExists); 
-        //We need to move this user exists to another route I'll make it right above
-
       });
   });
 });
 
 
+// Called as a service from the playlist in order to get the key of song, so that we can blend
+// the isochronic tone and binaural beat into the song. 
 app.get('/fetchKey',function(request,response) {
   console.log("fetching key...");
   
@@ -140,12 +119,9 @@ app.get('/fetchKey',function(request,response) {
 
 
 
-//Used to Post data from client side to here for sorting. I placed the link
-//in playlists.html so that when the user reaches that page their playlist
-//(if new user) will posted here for processing. The processed playlists will
-//be placed in our SQL DB and will be fetched when they click on any of the
-//playlists. After initial processing, all playlists will be gathered from 
-//the DB and no further processing(this code below) will be done.
+// This is the main service from the backend. Here we take the audio analysis for all
+// the songs passed from the frontend and sort them into playlists based on what tasks
+// the most induce optimal performance.
 app.post('/sort', function(request, response) {
 
   console.log("Received request to sort"); 
@@ -158,10 +134,6 @@ app.post('/sort', function(request, response) {
         });
   
   
-  
-  //So now we need to go back and drop and create all the tables lol Because of all the duplicates
-  //*************ZACH***************************//
-  //********************************************//
   //Parse JSON object and sort based on characteristics
   /*
   [{ danceability: 0.3536,
@@ -208,44 +180,48 @@ app.post('/sort', function(request, response) {
   ];
   */
   //~~~~~~~~~~~~~~~~~~~~~~~~~LOOP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
-  var userPlaylists = [];
-  var lengthOfReq = request.body.audio.length;
-  var i;
-  var globDance = 0.3536;
+  var userPlaylists = []; //an array to hold the songs which hold the attributes and playlist flags
+  var lengthOfReq = request.body.audio.length; //the number of songs being analyzed
+  var i; //index
+  var globDance = 0.3536; //global variables for average effective attributes
   var globEnergy = 0.412;
-  var globSpeech = 0.0267;
+  var globSpeech = 0.0267;                                        
   var globAcoustic = 0.0267;
   var globInstrument = 0.785;
   var globLive = 0.0603;
   var globTempo = 109.228;
-  var danceability, energy, speechiness, acousticness, instrumentalness, liveness, tempo;
-  for (i=0; i<lengthOfReq; i++)
-  {
-    var song = {id: "", key: "", 
+  var danceability, energy, speechiness, acousticness, instrumentalness, liveness, tempo; //variables to cross reference attributes of song
+  // being analyzed with the global effective attributes
+  for (i=0; i<lengthOfReq; i++)//iterate through the batch of songs listed
+  {//this will be faster than checking our DB for songs that have already been analyzed.
+    var song = {id : "", key: "", //stores the values were are interested in one location for each song scanned
                 key : request.body.audio[i].key,
                 danceability : request.body.audio[i].danceability,
                 energy : request.body.audio[i].energy,
                 speechiness : request.body.audio[i].speechiness,
                 acousticness : request.body.audio[i].acousticness,
                 instrumentalness : request.body.audio[i].instrumentalness,
-                liveness :request.body.audio[i].liveness,
+                liveness : request.body.audio[i].liveness,
                 tempo : request.body.audio[i].tempo,
                 exercise: false, meditation: false, creativity:false, abstract:false, memory:false, problem:false, sleep:false, writing: false};
-    var exeNumTrue = 0;
-    var medNumTrue = 0;
-    var creNumTrue = 0;
-    var sleNumTrue = 0;
-    var memNumTrue = 0;
-    var wriNumTrue = 0;
-    var proNumTrue = 0;
-    var absNumTrue = 0;
+    
+    //counters for the number of acceptable attributes for each available task
+    //                  The tasks are:
+    var exeNumTrue = 0; //exercise
+    var medNumTrue = 0; //meditate
+    var creNumTrue = 0; //creativity
+    var sleNumTrue = 0; //sleep
+    var memNumTrue = 0; //memory
+    var wriNumTrue = 0; //writing
+    var proNumTrue = 0; //problem solving
+    var absNumTrue = 0; //abstract
     
     
-    song.id = request.body.audio[i].id;
+    song.id = request.body.audio[i].id; //store song ID and KEY
     song.key = request.body.audio[i].key;
     
     
-    danceability = request.body.audio[i].danceability; 
+    danceability = request.body.audio[i].danceability; //store the other attributes we are interested in of the song being analyzed
     energy = request.body.audio[i].energy;
     speechiness = request.body.audio[i].speechiness;
     acousticness = request.body.audio[i].acousticness;
@@ -253,15 +229,18 @@ app.post('/sort', function(request, response) {
     liveness = request.body.audio[i].liveliness;
     tempo = request.body.audio[i].tempo;
     
+    
+    //These IF statements check that the song being analyzed has attributes within an acceptable range
     if (danceability>(globDance*.7)&&danceability<globDance*1.8)
     {
-       exeNumTrue++; 
+       exeNumTrue++; //and increments the counter to the corresponding tasks
+                     //the values are based off values that proved effective in the research studies 
     }
     if (danceability>(globDance*.9) && danceability<(globDance*1.1))
     {
       absNumTrue++;
     }
-    if(danceability>(globDance*.2)&&danceability<(globDance*.9))
+    if(danceability>(globDance*.2)&&danceability<(globDance*.7))
     {
       medNumTrue++;
       creNumTrue++;
@@ -352,6 +331,8 @@ app.post('/sort', function(request, response) {
       }
     }
     
+    
+    //if the counter is above 2-3, flag it as matching for the corresponding playlist
     if(exeNumTrue > 2)
     {
       song.exercise=true;
@@ -384,81 +365,21 @@ app.post('/sort', function(request, response) {
     {
       song.creativity= true;
     }
+    
+    //then once all manipulations and analystics and flagging has completed for each song occurance, store the song in the 
+    //playlist for the user
     userPlaylists.push(song)
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    //~~~~Add save to DB statements here~~~~//
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
   
   }
-  //console.log(userPlaylists);
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LOOP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
 
-  /*
-  userPlaylist.append(song);
-  
-  Example:
-  var keyOfSong = request.body.audio[0].audio_features[0].tempo
-  for
-  Gets the key of the first song in the array. Change index of audio_features to 
-  get the next and so on.
-  
-  You can use console.log("Hello"); in debugging. It'll appear if you click 
-  'Status' over to the left at the top.
-  
-  We want to group the 'id's into arrays based on the sort. I'll use those to load
-  the playlist. 
-  Another component of this portion is researching parameters. I totally can't find the original paper that gave me the idea.
-  So, I'll leave to you to figure out how to sort them. 
-  */
-  //k ill look for parameters 
-  //where are the GET functions that call the API? -> script.js
-  
-  
-  
-  
-  
   console.log("sorted"); 
   
   
-  //************************AZAEL***************************//
-  //********************************************************//
-  //Store sorted playlists in DB for user
-  var userName = request.body.user; //Use for user
-  //Above are examples of what will be passed to you. Don't get daunted, as
-  //I had to enter it manually. It won't exactly look like that. 
-  //But the way you call it and the values you get will be the same.
-  //So this is an array of JSON objects. Each JSON object represents a song
-  //and it's attributes. In order to access say for example the id attribute of
-  //the second song you do "exercisePlaylist[1].id" Or to get the tempo of the third
-  //song in the meditation playlist you do "meditationPlaylist[2].tempo".
-  //Check it out below in the insert 
-  
-  
-     //Now we need to store stuff in all the table....... lol
-        // damn, you wanna do user next? Yea. What is the table and attributes? Table is USER, Username as attribute 
-        /*
-            	db.run('drop TABLE if exists USER');
-	            db.run('create TABLE USER (Username TEXT PRIMARY KEY)');
-              I don't think we need the TASK and Playlist 
-              do we? 
-              the whole tables? Yea
-              Seems we just need to fetch the songs from the users library that are of each playlist
-              We don't necesarily need them but it might make it run faster to get it from the database than to process it each time?
-              Ok ya you are right. It wasn't clicking for me for a sec. So do you wanna implement those while I do user library?
-              Yeah sure I'll go at it :/ lol 
-              Trying to think of a way to let each other know we are going to test
-              How about we test every five minutes starting at 12:10? k i'll try to remeber :) 
-             So just put your console.logs in your code. I'll bing on the discord lol Ok cool
-       */
 
-  // db.run('INSERT INTO USER VALUES ("'+userName+'")',function(err){
-  //         if(err)
-  //         {
-  //           console.log("Error: Duplicate in user");
-  //         }
-  //   });
+  var userName = request.body.user; //Use for user
+
   
-  
+  //Here we place the songs into the database after having been sorted.
   for(var i = 0; i < userPlaylists.length; i++)
   {
       var songExists = false;
@@ -504,9 +425,7 @@ app.post('/sort', function(request, response) {
         });
         console.log("Added Song to user library");
       }
-/*Meditation NUMERIC, Exercise NUMERIC,
-Sleep NUMERIC, Memory NUMERIC, Writing NUMERIC, Problem NUMERIC, Creativity NUMERIC, Abstract NUMERIC
-*/
+
 
       if(!songExists)
       {
@@ -593,157 +512,23 @@ Sleep NUMERIC, Memory NUMERIC, Writing NUMERIC, Problem NUMERIC, Creativity NUME
         }
       } 
 
-    
-    
-    
-    
-
-	  //db.run('create TABLE PLAYLIST (Username TEXT , Task_ID INTEGER, Song_ID TEXT)');
   }
-  
-  /*db.each('select * from SONG', function(err, row){
-		if(row){
-      console.log(row);
-			//console.log("S_ID: " + row.Song_ID + " " + row.Key + " " + row.Danceability + " " + row.Energy + " " + row.Speechiness + " " + row.Acousticness + " " + row.Instrumentalness + " " + row.Liveness + " " + row.Tempo + " " + row.Meditation + " " + row.Exercise  + " " + row.Sleep + " " + row.Memory + " " + row.Writing + " " + row.Problem + " " + row.Creativity + " " + row.Abstract);
-    }
-    if(err)
-    {
-      console.log("Error:" + err);
-    }
-	});*/
-  /*db.each('select * from USER_LIBRARY', function(err, row){
-		if(row){
-      console.log(row);
-			//console.log("S_ID: " + row.Song_ID + " " + row.Key + " " + row.Danceability + " " + row.Energy + " " + row.Speechiness + " " + row.Acousticness + " " + row.Instrumentalness + " " + row.Liveness + " " + row.Tempo + " " + row.Meditation + " " + row.Exercise  + " " + row.Sleep + " " + row.Memory + " " + row.Writing + " " + row.Problem + " " + row.Creativity + " " + row.Abstract);
-    }
-    if(err)
-    {
-      console.log("Error:" + err);
-    }
-	});*/
-  
-   /*db.each('select * from USER', function(err, row){
-		if(row){
-      console.log(row);
-    }
-    if(err)
-    {
-      console.log("Error:" + err);
-    }
-	});*/
-
-  /*
-  I just made it right below this on. So copy and paste and do the if then. And make a variable where you'l store
-  what you get from the query. named requestedPlaylist
-  
-  
-  var searchedTask = 0;
-  searchedTask
-  
-  
-  */
-  /*db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 1 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Meditation Playlist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 2 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Exercise Playlist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 3 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Sleep PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 4 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Memory PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 5 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Writing PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 6 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Problem Solving PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 7 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Creativity PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});
-  
-  db.each('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username = "'+userName+'" and P.Task_ID = 8 and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
-		if(row){
-      console.log("Abstract PLaylist: " , row);
-    }
-    if(err)          
-    {
-      console.log("Error:" + err);
-    }
-	});*/
-  
-  
-  
-  console.log(request.body.audio.length);
-  
-  console.log("stored in database"); 
     
   response.send("Sorted and Stored Playlists!");
-  
-  
-         
+      
 });
 
+//Used as a client service to get the requested playlist for the player.
+//An array of songIDs are passed back.
 app.get('/fetchplaylist',function(request, response) {
-  //console.log(request);
+  
   var searchTask = request.query.search;  
   var userName = request.query.user; 
-  console.log(searchTask); 
-  console.log(userName); 
   var requestPlaylist = [];  
   var taskConvert = {meditation: 1,  exercise: 2, sleep: 3, memory: 4, writing:  5, problem: 6, creativity: 7, abstract: 8};
   var task = taskConvert[searchTask];
-  console.log("Converted: " + task); 
+  
+  
   db.all('SELECT P.Song_ID FROM PLAYLIST P, SONG S, Task T WHERE Username ="'+userName+'" and P.Task_ID = '+task+' and P.Song_ID = S.Song_ID and P.Task_ID = T.Task_ID', function(err, row){
 		if(row){
       console.log("PLaylist: " , row); 
@@ -758,8 +543,240 @@ app.get('/fetchplaylist',function(request, response) {
   
   
 });
+
+app.get('/data',function(request,response){
+  response.sendFile(__dirname + '/data.html');
+});
+
+//Used for creating the data visualization
+app.get('/dataviz',function(request,response){
+  db.all('SELECT * FROM SONG', function(err, row){
+		if(row){
+      var meditation = 0;
+      var problem = 0;
+      var exercise = 0;
+      var creativity = 0;
+      var abstract = 0;
+      var sleep = 0;
+      var writing = 0;
+      var memory = 0;
+      
+      for(var i = 0; i < row.length; i++)
+      {
+          if(row[i].Meditation == "true")
+          {
+              meditation++;
+          }
+          if(row[i].Problem == "true")
+          {
+              problem++;
+          }
+          if(row[i].Exercise == "true")
+          {
+              exercise++;
+          }
+          if(row[i].Creativity == "true")
+          {
+              creativity++;
+          }
+          if(row[i].Abstract == "true")
+          {
+              abstract++;
+          }
+          if(row[i].Sleep == "true")
+          {
+              sleep++;
+          }
+          if(row[i].Writing == "true")
+          {
+              writing++;
+          }
+          if(row[i].Memory == "true")
+          {
+              memory++;
+          }
+      }
+      
+      response.send([{"Name": "Problem Solving", "Count": problem},
+                     {"Name": "Meditation", "Count": meditation},
+                     {"Name": "Exercise", "Count": exercise},
+                     {"Name": "Creativity", "Count": creativity},
+                     {"Name": "Abstract", "Count": abstract},
+                     {"Name": "Writing", "Count": writing},
+                     {"Name": "Memory", "Count": memory},
+                     {"Name": "Sleep", "Count": sleep},
+                     {"Name": "Total", "Count": row.length}]);
+    }   
+    if(err)          
+    {
+      console.log("Error:" + err);
+    }
+	});
+});
+
+//Used for creating the data visualization stats
+app.get('/dataviz1',function(request,response){
+  db.all('SELECT * FROM SONG', function(err, row){
+		if(row){
+      var meditation = 0;
+      var problem = 0;
+      var exercise = 0;
+      var creativity = 0;
+      var abstract = 0;
+      var sleep = 0;
+      var writing = 0;
+      var memory = 0;
+      var meditationAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var problemAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var writingAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var exerciseAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var sleepAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var abstractAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var creativityAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      var memoryAnalysis = {key:0, dance:0, energy:0, speech:0, acoustic:0, instr:0, live:0, tempo:0};
+      
+      
+      
+          db.run('Create Table SONG (Song_ID TEXT Primary Key, Key INTEGER, Danceability REAL, Energy REAL, Speechiness REAL, Acousticness REAL, Instrumentalness REAL, Liveness REAL, Tempo REAL, Meditation NUMERIC, Exercise NUMERIC, Sleep NUMERIC, Memory NUMERIC, Writing NUMERIC, Problem NUMERIC, Creativity NUMERIC, Abstract NUMERIC )');
+
+      for(var i = 0; i < row.length; i++)
+      {
+          if(row[i].Meditation == "true")
+          {
+              meditation++;
+              meditationAnalysis.key += row[i].Key;
+              meditationAnalysis.dance += row[i].Danceability;
+              meditationAnalysis.energy += row[i].Energy;
+              meditationAnalysis.speech += row[i].Speechiness;
+              meditationAnalysis.acoustic += row[i].Acousticness;
+              meditationAnalysis.instr += row[i].Instrumentalness;
+              meditationAnalysis.live += row[i].Liveness;
+              meditationAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Problem == "true")
+          {
+              problem++;
+              problemAnalysis.key += row[i].Key;
+              problemAnalysis.dance += row[i].Danceability;
+              problemAnalysis.energy += row[i].Energy;
+              problemAnalysis.speech += row[i].Speechiness;
+              problemAnalysis.acoustic += row[i].Acousticness;
+              problemAnalysis.instr += row[i].Instrumentalness;
+              problemAnalysis.live += row[i].Liveness;
+              problemAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Exercise == "true")
+          {
+              exercise++;
+              exerciseAnalysis.key += row[i].Key;
+              exerciseAnalysis.dance += row[i].Danceability;
+              exerciseAnalysis.energy += row[i].Energy;
+              exerciseAnalysis.speech += row[i].Speechiness;
+              exerciseAnalysis.acoustic += row[i].Acousticness;
+              exerciseAnalysis.instr += row[i].Instrumentalness;
+              exerciseAnalysis.live += row[i].Liveness;
+              exerciseAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Creativity == "true")
+          {
+              creativity++;
+              creativityAnalysis.key += row[i].Key;
+              creativityAnalysis.dance += row[i].Danceability;
+              creativityAnalysis.energy += row[i].Energy;
+              creativityAnalysis.speech += row[i].Speechiness;
+              creativityAnalysis.acoustic += row[i].Acousticness;
+              creativityAnalysis.instr += row[i].Instrumentalness;
+              creativityAnalysis.live += row[i].Liveness;
+              creativityAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Abstract == "true")
+          {
+              abstract++;
+              abstractAnalysis.key += row[i].Key;
+              abstractAnalysis.dance += row[i].Danceability;
+              abstractAnalysis.energy += row[i].Energy;
+              abstractAnalysis.speech += row[i].Speechiness;
+              abstractAnalysis.acoustic += row[i].Acousticness;
+              abstractAnalysis.instr += row[i].Instrumentalness;
+              abstractAnalysis.live += row[i].Liveness;
+              abstractAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Sleep == "true")
+          {
+              sleep++;
+              sleepAnalysis.key += row[i].Key;
+              sleepAnalysis.dance += row[i].Danceability;
+              sleepAnalysis.energy += row[i].Energy;
+              sleepAnalysis.speech += row[i].Speechiness;
+              sleepAnalysis.acoustic += row[i].Acousticness;
+              sleepAnalysis.instr += row[i].Instrumentalness;
+              sleepAnalysis.live += row[i].Liveness;
+              sleepAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Writing == "true")
+          {
+              writing++;
+              writingAnalysis.key += row[i].Key;
+              writingAnalysis.dance += row[i].Danceability;
+              writingAnalysis.energy += row[i].Energy;
+              writingAnalysis.speech += row[i].Speechiness;
+              writingAnalysis.acoustic += row[i].Acousticness;
+              writingAnalysis.instr += row[i].Instrumentalness;
+              writingAnalysis.live += row[i].Liveness;
+              writingAnalysis.tempo += row[i].Tempo;
+          }
+          if(row[i].Memory == "true")
+          {
+              memory++;
+              memoryAnalysis.key += row[i].Key;
+              memoryAnalysis.dance += row[i].Danceability;
+              memoryAnalysis.energy += row[i].Energy;
+              memoryAnalysis.speech += row[i].Speechiness;
+              memoryAnalysis.acoustic += row[i].Acousticness;
+              memoryAnalysis.instr += row[i].Instrumentalness;
+              memoryAnalysis.live += row[i].Liveness;
+              memoryAnalysis.tempo += row[i].Tempo;
+          }
+      }
+      
+      function avg(analysis,divider){
+        
+        Object.keys(analysis).forEach(function(key){ analysis[key] = analysis[key]/divider;});
+        return memoryAnalysis;
+      }
+     
+      avg(meditationAnalysis,meditation);
+      avg(problemAnalysis,problem);
+      avg(exerciseAnalysis,exercise);
+      avg(creativityAnalysis,creativity);
+      avg(abstractAnalysis,abstract);
+      avg(writingAnalysis,writing);
+      avg(memoryAnalysis,memory);
+      avg(sleepAnalysis,sleep);
+      var avgAnalysis = {"Problem Solving": problemAnalysis,
+                     "Meditation": meditationAnalysis,
+                     "Exercise": exerciseAnalysis,
+                     "Creativity": creativityAnalysis,
+                     "Abstract": abstractAnalysis,
+                     "Writing": writingAnalysis,
+                     "Memory": memoryAnalysis,
+                     "Sleep": sleepAnalysis};
+      
+      response.send(avgAnalysis);
+      
+    }   
+    if(err)          
+    {
+      console.log("Error:" + err);
+    }
+	});
+});
+
+
 console.log('Listening on 8888');
 app.listen(8888);
+
+
 
 // listen for requests :)
 const listener = app.listen(process.env.PORT, function() {
