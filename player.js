@@ -1,5 +1,10 @@
+/****************************************Player*****************************************/
+// This the script for running the Spotify player in the browser. Here we call the database
+// and gather the users requested playlist and load it. We bind the frontend components
+// with the Spotify API using their various control mechanisms.
+/***************************************************************************************/
 
-// Get the hash of the url
+// Get the hash of the url to determine if the user has an access token
 const hash = window.location.hash
 .substring(1)
 .split('&')
@@ -11,35 +16,42 @@ const hash = window.location.hash
   return initial;
 }, {});
 window.location.hash = '';
-console.log(window.location);
+
 // Set token
 let _token = hash.access_token;
 
 const authEndpoint = 'https://accounts.spotify.com/authorize';
 
+var taskCategory = getParameterByName("taskCategory"); //The name of the requested playlist
 
-//**************************AZAEL***********************************//
-//**********************Get proper playlist from DB*******************//
-//*******************************************************************//
-//Query by user and then by playlist
-var taskCategory = getParameterByName("taskCategory"); //The category of the playlist we need to fetch
+//Set name of playlist in html
+if(taskCategory == "problem")
+{
+  $('.playlistCategory').html(taskCategory.toUpperCase() + " SOLVING");
+}
+else
+{
+  $('.playlistCategory').html(taskCategory.toUpperCase());
+}
 
-$('.playlistCategory').html(taskCategory.toUpperCase());//taskCategory.toUpperCase());
 
-var playlist = [];
-var playlistObject;
+var playlist = [];   //Loaded playlist IDs
+var playlistObject;  //Loaded playlist w/ metadata
 var userName;
- $.ajax({
-       url: "https://api.spotify.com/v1/me",
-       type: "GET",
-       async: false,
-       beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
-       success: function(data) {  
-         console.log("Got id!");
-         userName = data.id;
-       }
-      }); 
 
+//Get the users username so we can look up their playlist in our database
+$.ajax({
+     url: "https://api.spotify.com/v1/me",
+     type: "GET",
+     async: false,
+     beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
+     success: function(data) {  
+       console.log("Got id!");
+       userName = data.id;
+     }
+}); 
+
+//Get the user's playlist from our server
 $.ajax({
      url: "https://accurate-education.glitch.me/fetchplaylist?search="+taskCategory+"&user="+userName,
      type: "GET",
@@ -50,6 +62,8 @@ $.ajax({
        playlistObject = data;
      }
 });
+
+//Gather solely the IDs of the songs
 for(var i = 0; i < playlistObject.length; i++)
 {
     playlist.push(playlistObject[i].Song_ID);
@@ -61,6 +75,9 @@ for(var i = 0; i < playlistObject.length; i++)
 //Using this as a dummy for right now.
 //playlist = ["7sqii6BhIDpJChYpU3WjwS","6wMTeVootJ8RdCLNOZy5Km","0LtOwyZoSNZKJWHqjzADpW","5lfp2QjgatdihCll6tFlMA","7KRQoq9GeWeCm0ZAXg5XMb","5h27GYpKZWWhFov8fOunF6","70We9AqHenA4jcmXmKzJnZ","43QhrhgRrH9NWy6eoUro4X","7L59A2cUZOx5IVuGnrhRkA"];
 
+//We need to make the array a string in order to pass it to the Spotify API
+//playlistString is used for loading the player
+//trackInfo is used for gathering information on all the tracks
 var playlistString = "[";
 var trackInfo = "";
 for(var i = 0; i < playlist.length; i++)
@@ -71,8 +88,10 @@ for(var i = 0; i < playlist.length; i++)
 playlistString = playlistString.substring(0,playlistString.length -1);
 playlistString += "]";
 trackInfo = trackInfo.substring(0,trackInfo.length - 3);
-console.log(playlistString);
+
+//Loads the track information so that we can view the playlist and select
 getTrackInfo(trackInfo);
+
 // Replace with your app's client ID, redirect URI and desired scopes
 const clientId = 'bb1b05baf47b473280d9fc3e8af8da6c';
 const redirectUri = 'https://accurate-education.glitch.me/player?taskCategory='+taskCategory;
@@ -128,6 +147,7 @@ window.onSpotifyPlayerAPIReady = () => {
     {
       songKey = getSongKey(state.track_window.current_track.id);
       console.log("Key of Song: ", songKey);
+      //keyToFreq[songKey];
       clearInterval(trackDuration);
       totalProgress = (state.duration/1000);
       setIsotone(2,220);
@@ -197,6 +217,7 @@ window.onSpotifyPlayerAPIReady = () => {
 }
 
 // Play a specified track on the Web Playback SDK's device ID
+// We pass the entire playlist string to be played
 function play(device_id) {
   $.ajax({
    url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
@@ -209,6 +230,7 @@ function play(device_id) {
   });
 }
 
+// Calls our backend to obtain the key of the currently playing song.
 function getSongKey(songId)
 {
     var songKey;
@@ -217,12 +239,14 @@ function getSongKey(songId)
      type: "GET",
      async: false,
      success: function(data) { 
-       console.log(data.songKey[0].Key);
        songKey = data.songKey[0].Key;
      }
   });
   return songKey;
 }
+
+//Dynamically loads the playlist interface so that the user can see songs and click on them
+//This is done using jquery.
 function getTrackInfo(tracks)
 {
 
@@ -245,28 +269,30 @@ function getTrackInfo(tracks)
     }
     });
 }
-function pausePlayer() {
 
-  player.togglePlay().then(() => {
-    console.log('Toggled playback!');
-  });
-  
+//Binding our pause button on the front end with the spotify playback control
+function pausePlayer() {
+    player.togglePlay().then(() => {
+        console.log('Toggled playback!');
+    });
 }; 
 
+//Binding our next button on the front end with the spotify playback control
 function nextPlayer() {
-
-player.nextTrack().then(() => {
-  console.log('Skipped to next track!');
-});
+    player.nextTrack().then(() => {
+        console.log('Skipped to next track!');
+    });
 }
 
+//Binding our back button on the front end with the spotify playback control
 function backPlayer() {
-  player.previousTrack().then(() => {
-  console.log('Set to previous track!');
-});
+    player.previousTrack().then(() => {
+        console.log('Set to previous track!');
+    });
 }
 
-
+//Get the query parameters from the url
+//We use this to get the playlist name passed from the last page
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -277,7 +303,7 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-
+//Binding our volume slider on the front end with the spotify playback control
 window.SetVolume = function(val)
 {
     player.setVolume(val/100).then(() => {
@@ -286,43 +312,48 @@ window.SetVolume = function(val)
 }
 
 
-    
+//These keep track of the progress of the song and display it in the html.
+//We initial the variables globally and rely on a setInterval to increment
+//every seconds and update the bar accordingly.
 var elem = document.getElementById("myBar");
 function progressUpdate(){
-  if(!trackPaused)
-  {
-    sCount++;
-  }
+    if(!trackPaused)
+    {
+      sCount++;
+    }
 
-  seconds = Math.round(sCount%60);
-  hours = Math.floor(sCount/3600);
-  minutes = Math.floor(sCount/60);
+    seconds = Math.round(sCount%60);
+    hours = Math.floor(sCount/3600);
+    minutes = Math.floor(sCount/60);
 
-  document.getElementById("playedDuration").innerHTML = ("0" + hours).slice(-2) +':'+
-    ("0" + minutes).slice(-2) +':'+ ("0" + seconds).slice(-2);
-  elem.style.width = (sCount/totalProgress)*100 + '%'; 
+    document.getElementById("playedDuration").innerHTML = ("0" + hours).slice(-2) +':'+
+      ("0" + minutes).slice(-2) +':'+ ("0" + seconds).slice(-2);
+    elem.style.width = (sCount/totalProgress)*100 + '%'; 
 }
 
+//Used for the event when a user clicks on a song from the playlists interface.
+//We must rearrange the playlist array and make the first element the selected song.
+//We then load this back to the play function.
 function seekTrack(event){
-  var id = $(event.target).attr('id');
-  id = id.substring(5,id.length);
-   
-  var reorderedPlaylist = 
-    (playlist.slice(id,playlist.length)).concat(
-    playlist.slice(0,id));
+    var id = $(event.target).attr('id');
+    id = id.substring(5,id.length);
 
-  playlistString = "[";
-  for(var i = 0; i < reorderedPlaylist.length; i++)
-  {
-     playlistString += '"spotify:track:'+reorderedPlaylist[i]+'",'; 
-  }
-  playlistString = playlistString.substring(0,playlistString.length -1);
-  playlistString += "]";
-  
-  play(deviceId);
+    var reorderedPlaylist = 
+      (playlist.slice(id,playlist.length)).concat(
+      playlist.slice(0,id));
+
+    playlistString = "[";
+    for(var i = 0; i < reorderedPlaylist.length; i++)
+    {
+       playlistString += '"spotify:track:'+reorderedPlaylist[i]+'",'; 
+    }
+    playlistString = playlistString.substring(0,playlistString.length -1);
+    playlistString += "]";
+
+    play(deviceId);
 }
 
-
+//Solely for making the playlist reminder disappear when the user scrolls down to the playlist
 $(window).bind('scroll', function() {
      if ($(window).scrollTop() > 75) {
          $('#playlistReminder').hide();

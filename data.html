@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- Making sure the web-site will scale fine on mobiles-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Stylesheets-->
+        <link rel="stylesheet" href="./libs/pace/themes/white/pace-theme-flash.css">
+        <link rel="stylesheet" href="./libs/materialize/css/materialize.min.css?v=master">
+        <link rel="stylesheet" href="./assets/css/linea.min.css">
+        <link rel="stylesheet" href="./assets/css/moderat.min.css?v=5">
+        <!-- Favicons-->
+
+        <script src="./libs/jquery/jquery.min.js"></script>
+      
+        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+        
+        <style>
+          body {
+            margin: auto 25em;
+          }
+          main {
+            margin-left: -25em;
+          }
+        </style>
+
+        <!-- Site title-->
+        <title>Brain Entrain</title>
+    </head>
+    <body class="gita undefined">
+      
+        <canvas id="spiral-buffer-gita" class="spiral-buffer"></canvas>
+        
+        <main>
+          
+            <!-- Navigation-->
+            <div class="navbar-fixed">
+                <nav>
+                    <div class="nav-wrapper">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col s12 l9">
+                                    <!-- Brand or logo-->
+                                    <a href="/home" class="brand">BRAIN ENTRAIN</a>
+                                    <!-- Menu button visible on tablet and mobile--><span class="right show-on-medium-and-down hide-on-large-only"><a id="sidenav-toggle" href="#" data-activates="slide-out" class="sidenav-toggle">Menu</a></span></div>
+                                <div class="col s12 l3">
+                                    <!-- Desktop menu version-->
+                                    <ul class="hidden hide-on-med-and-down table-of-contents">
+
+                                        <li>
+                                            <a href="/">Home</a>
+                                        </li>
+                                        <li>
+                                            <a href="/playlists">Playlists</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Data</a>
+                                        </li>
+                                        <li></li>
+                                        <li>
+                                            <a href="/about">About</a>
+                                        </li>
+                                        
+                                    </ul>
+                                    <!-- Tablet and mobile menu-->
+                                    <ul id="slide-out" class="side-nav">
+                                        <li>
+                                            <a href="/">Home</a>
+                                        </li>
+                                        <li>
+                                            <a href="/playlists">Playlists</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="/about">About</a>
+                                        </li>
+                                    </ul>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <h2 align="right" style="margin-right: -1em;">
+              Statistics of All Users
+            </h2>
+
+
+            <div class="container">
+              <div class="row">
+                <div class="col s12 l10 d3Graph" style="margin-top:-7em;">
+
+                </div>
+                <div class="col s12 l2">
+                  <h1>
+                    Analysis
+                  </h1>
+                  <div id="playlistInfo" style="overflow-y:scroll; height:30em; width: 30em;">
+                    <h3>
+                      Meditation
+                    </h3>
+                    <ul class="meditationList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Exercise
+                    </h3>
+                    <ul class="exerciseList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Sleep
+                    </h3>
+                    <ul class="sleepList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Creativity
+                    </h3>
+                    <ul class="creativityList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Writing
+                    </h3>
+                    <ul class="writingList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Memory
+                    </h3>
+                    <ul class="memoryList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Abstract
+                    </h3>
+                    <ul class="abstractList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                    <h3>
+                      Problem Solving
+                    </h3>
+                    <ul class="problemList">
+                        <li>Tempo: <em>122</em></li>
+                        <li>Acousticness: <em>0.95</em></li>
+                        <li>Speechiness: <em>0.50</em></li>
+                        <li>Energy: <em>0.5</em></li>
+                        <li>Key: <em>8.3</em></li>
+                        <li>Liveness: <em>4.3</em></li>
+                        <li>Instrumentalnes: <em>1.05</em></li>
+                    </ul>
+                  </div>
+                </div>
+            </div>
+
+            <footer>
+                <div class="container">
+                    <div class="row">
+                        <div class="col s12 l6">&copy; 2018 SW Engr - Team 11</div>
+                    </div>
+                </div>
+            </footer>
+          <script src="./data.js"></script>
+          </div>
+        </main>
+        <!-- Libraries-->
+        <script src="./libs/pace/pace.js" data-pace-options="{&quot;eventLag&quot;: false}"></script>
+        
+        <script src="./libs/lodash/lodash.min.js"></script>
+        <script src="./libs/materialize/js/materialize.min.js?v=master"></script>
+        <!-- Oona scripts-->
+        <script src="./assets/js/spiral-buffer-gita.js"></script>
+        <script src="./assets/js/config.js"></script>
+        <script src="./assets/js/moderat.js"></script>
+
+
+    </body>
+</html>
