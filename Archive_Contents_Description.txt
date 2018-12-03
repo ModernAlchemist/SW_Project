@@ -1,0 +1,217 @@
+<---------------------------------------------------------------------------->
+Overview
+<---------------------------------------------------------------------------->
+
+Client Side
+-----------
+	The client side is written in Javascript, HTML, and CSS. We use the JQuery and JQueryUI for a small portion of the code as well, which simplifies programming dynamic behavior on the site.
+The client side inputs playlist selection, song adjustments (skip/previous track, pause/play track, song selection from playlist queue), volume adjustments, enabling/disabling isochronic tones and binaural beats via the GUI. 
+The frontend will produce the isochronic tone, which uses the Tone.js library. This is done by creating a frequency envelope. Here attack time, release time, decay time, frequency, and sustain must be specified. These will all be determined based on the designated playlist, as well as the currently playing song. In order to obtain a oscillating nature that defines these tones, we need to set an interval to signal this envelope at the require frequency (different frequency than the aforementioned; this is the frequency of signals per second).
+The fronted will produce the binaural beats using Tone.js as well. This is done slightly different. Here we must generate two constant pure tones. We must pan the sound of one of these to the left ear and the other to the right ear. Based on the task selected we must calculate the frequency of each of these. Also, based on the song key will need to set the average frequency to match the song key. For example, if the selected task is sleep, we will need a binaural beat of 3Hz, and if the song is in key C5 we will need a average frequency of 520Hz. Thus, one frequency will be 521.5Hz, and the other 518.5Hz, thus creating a binaural beat to induce sleep and that blends into the song.
+We will acquire a user access token here, which requires redirection to Spotify’s login page (if not logged in) and permission request that asks the user if they want to allow our app to access their Spotify information. We will make AJAX calls to our DB to see if the user exists in our DB. If they do not, we will need to make frontend calls to receive all the songs from their libraries. This will require many calls to the Spotify API. After acquiring all the songs from the user’s library, we will send an array of these songs back to the Spotify API in order to the musical analysis of each. This too will require many calls because we must page (limit the size of our requests). Upon getting the musical analysis for all the music, we will at last send this information to our Node.js to process, sort, and place into the DB. Of course, if the user exists, none of this occurs. 
+When clicking on a playlist, we will provide a query parameter to the url designating which playlist needs to be loaded. This will be given as a parameter to our call to our Node.js server in order to acquire a list of songs and their keys to give to our player. We will dynamically generate html based on the songs returned in order to display them and make them clickable.
+ 
+Server Side
+-------------
+The server side contains the algorithm, and functions to output playlists from the database to the music player and input music player controls (Volume, Skip tracks, enable/disable isochronic tones/binaural beats) from the client side.
+We used Node.js for our server. This server is deployed using Glitch.com. This server provides various routes, some for rendering pages, some for providing data from our database, others for posting data to our database, and of course, our server provides the algorithmic processing of all the songs based on the musical analysis. Our server, as it’s deployed right, for free, can process up to 4000 requests per hour.
+Our frontend uses not only services from our own server, but also from the Spotify’s server, which is called, as described above, using the Spotify API. The Spotify API receives requests from our client and sends back data. For GET requests, the Spotify server processes the request data and serves back the query results from their DB. We use this feature to get Playlists for the user, get tracks for a playlist, get username of current user, and get music analysis for tracks. For POST requests, the Spotify server receives requests and changes the state of their application for the given user, and possibly inserts data into their DB. We use this feature to change the state of the music output which plays on our browser. We post play/pause, volume, song to play, seek, and playlist to play.
+The sorting algorithm was created by examining research done by experts on psychology. These research documents contained attributes of music that improved performance for various cognitive tasks. We then matched these attributes with the attributes provided by the Spotify API and added a margin of error to each. The margin of error prunes out songs which will not be effective for the task, while including songs similar enough to the effective attribute. This increases the likelihood of songs from the user’s library to fit into the playlists, without losing much effectiveness.
+ 
+Database
+-----------
+We created our database system using sqlite with Node.js. After designing the database, we implemented it using the data gathered from the user’s spotify account, we first insert the user and their username into our USER table as soon as they link their spotify account. Next, we gather the user’s music on spotify along with the attributes of the songs, then, for the songs that are not already in our database, we analyze the attributes of each song and check which of the tasks the song can be applied to, then finally, we store all this information in the ‘SONG’ table. Next, in our table ‘USER_LIBRARY’, we store all of the user’s songs using the user’s unique Username, and the Song_ID of all of their songs. Next, using the ‘SONG’ and ‘USER_LIBRARY’ tables in the database, we implement a playlist for each of the eight tasks using only the music in the user’s library, we then also store these playlists in the ‘PLAYLIST’ table in accordance to the user and the specific task. 
+
+<----------------------------------------------------------------------->
+Code Makeup
+<----------------------------------------------------------------------->
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+JavaScript                      44           5071          20312          30224
+CSS                            166           3448            782          21528
+PHP                             64            687           3391           6834
+YAML                             1              0              0           1152
+Sass                            23            231              9           1144
+HTML                            10             68             66            812
+Markdown                         3            138              0            683
+JSON                             5              0              0            140
+Bourne Shell                     4             24             23            118
+XML                              1              0              0              9
+-------------------------------------------------------------------------------
+SUM:                           321           9667          24583          62644
+-------------------------------------------------------------------------------
+OS: Mac OSX and Windows
+
+<------------------------------------------------------------------------>
+Components
+<------------------------------------------------------------------------>
+
+
+Isotone
+-----------
+Function: setIsotone
+Description: This function creates isochronic tone using the given parameters. 
+This is done by calculating the characteristics of the amplitude envelope based 
+on the given frequency(isoAttack, isoRelease, and isoDecay). This function also 
+defines the frequency of the tone.
+Reused/From Scratch: 
+Number of Lines: 
+
+Function: toneOnOff
+Description: Triggers the release of the envelope.
+Reused/From Scratch: From Scratch
+Number of Lines: 1
+
+Function: playTone
+Description: Plays the Isotone when called.
+Reused/From Scratch: From Scratch
+Number of Lines: 5
+
+Function: PauseTone
+Description: Pauses the Isotone when called.
+Reused/From Scratch: From Scratch
+Number of Lines: 2
+
+-------------------------------------------------------------------------------
+
+Binaural
+------------
+Function: setBinaural
+Description: This function creates and initializes the binaural beat and calculates the need difference.
+Reused/From Scratch: 
+Number of Lines: 9
+
+Function: playBinaural
+Description: Plays the Binaural beat when called.
+Reused/From Scratch: From scratch
+Number of Lines: 6
+
+Function: pauseBinaural
+Description: Pauses the Binaural beat when called.
+Reused/From Scratch: From scratch
+Number of Lines: 3
+
+------------------------------------------------------------------------------
+
+Server
+------------
+Function: userExists
+Description: Called as a service to check if the user is in our database and has 
+been processed already
+Reused/From Scratch: From scratch
+Number of Lines: 15
+
+Function: fetchKey
+Description: Called as a service from the playlist in order to get the key of song, 
+so that we can blend.
+Reused/From Scratch: From scratch
+Number of Lines: 18
+
+Function: sort
+Description: This is the main service from the backend. Here we take the audio analysis 
+for all the songs passed from the frontend and sort them into the playlists based on what 
+tasks induce the most optimal performance.
+Reused/From Scratch: 
+Number of Lines: 350
+
+Function: fetchPlaylist
+Description: Used as a client service to get the requested playlist for the player. 
+An array of songIDs are passed back.
+Reused/From Scratch: 
+Number of Lines: 20
+
+Function: dataviz
+Description: Used for creating the data visualization
+Reused/From Scratch: 
+Number of Lines: 40
+
+Function: dataviz1
+Description: Used for creating the data visualization stats
+Reused/From Scratch: 
+Number of Lines: 150
+
+------------------------------------------------------------------------------
+
+Player
+----------
+Function: play
+Description: This function plays a specified track on the Web 
+Playback SDK's device ID. We pass the entire playlist string to 
+be played.
+Reused/From Scratch: 
+Number of Lines: 10
+
+Function: getSongKey
+Description: This function calls our backend to obtain the key of the 
+currently playing song.
+Reused/From Scratch: 
+Number of Lines: 10
+
+Function: getTrackInfo
+Description: This function dynamically loads the playlist interface so that 
+the user can see songs and click on them
+Reused/From Scratch: 
+Number of Lines: 20
+
+Function: pausePlayer
+Description: Binds our pause button on the front end with the spotify playback control.
+Reused/From Scratch: 
+Number of Lines: 4
+
+Function: nextPlayer
+Description: Binds our next button on the front end with the spotify playback control
+Reused/From Scratch: 
+Number of Lines: 3
+
+Function: backPlayer 
+Description: Binds our back button on the front end with the spotify playback control
+Reused/From Scratch: 
+Number of Lines: 3
+
+Function: getParameterByName
+Description: Get the query parameters from the url. This is used to get the playlist 
+name passed from the previous page.
+Reused/From Scratch: 
+Number of Lines: 8
+
+Function: progressUpdate
+Description: This function keeps track of the progress of the song and displays it in the html. We initial the variables globally and rely on a setInterval to increment every seconds 
+and update the bar accordingly.
+Reused/From Scratch: 
+Number of Lines: 12
+
+Function: seekTrack
+Description: This function is used for the event when a user clicks on a song from the playlists interface. This rearranges the playlist array and makes the first element the selected 
+song, then loads this back to the play function.
+Reused/From Scratch: 
+Number of Lines: 
+
+------------------------------------------------------------------------------
+
+Sort
+------------
+Function: getPlaylists
+Description: Calls Spotify API in order to get the playlists of the given user. We are solely gathering 
+the unique ids of each of these playlists.
+Reused/From Scratch: 
+Number of Lines: 
+
+Function: getTracks
+Description: This function takes a unique playlist id, gathered from the getPlaylists function, and 
+offsets (for paging), and gathers tracks for the playlists. We parse the data and obtain the unique 
+track IDs which will be stored in our database and used to gather audio analysis.
+Reused/From Scratch: 
+Number of Lines: 18
+
+Function: getAudioAnalysis
+Description: This function takes an array of unique trackIDs and outputs the audio analysis for all of the 
+tracks. This data will be used for sorting into playlists in our backend.
+Reused/From Scratch: 
+Number of Lines: 15
+
+Function: 
+Description: 
+Reused/From Scratch: 
+Number of Lines: 
+

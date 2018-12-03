@@ -90,7 +90,7 @@ $.ajax({
      type: "GET",
      async: false,
      success: function(data) { 
-         console.log(data);
+
          /*<li>Tempo: <em>122</em></li>
                         <li>Acousticness: <em>0.95</em></li>
                         <li>Speechiness: <em>0.50</em></li>
@@ -98,69 +98,69 @@ $.ajax({
                         <li>Key: <em>8.3</em></li>
                         <li>Liveness: <em>4.3</em></li>
                         <li>Instrumentalnes: <em>1.05</em></li>*/
-       $('.meditationList li:nth-child(1) em').html(data.Meditation.tempo);
-       $('.meditationList li:nth-child(2) em').html(data.Meditation.acoustic);
-       $('.meditationList li:nth-child(3) em').html(data.Meditation.speech);
-       $('.meditationList li:nth-child(4) em').html(data.Meditation.energy);
-       $('.meditationList li:nth-child(5) em').html(data.Meditation.key);
-       $('.meditationList li:nth-child(6) em').html(data.Meditation.liveness);
-       $('.meditationList li:nth-child(7) em').html(data.Meditation.instrument);
+       $('.meditationList li:nth-child(1) em').html(Math.round(data.Meditation.tempo*100)/100);
+       $('.meditationList li:nth-child(2) em').html(Math.round(data.Meditation.acoustic*100)/100);
+       $('.meditationList li:nth-child(3) em').html(Math.round(data.Meditation.speech*100)/100);
+       $('.meditationList li:nth-child(4) em').html(Math.round(data.Meditation.energy*100)/100);
+       $('.meditationList li:nth-child(5) em').html(Math.round(data.Meditation.key*100)/100);
+       $('.meditationList li:nth-child(6) em').html(Math.round(data.Meditation.live*100)/100);
+       $('.meditationList li:nth-child(7) em').html(Math.round(data.Meditation.instr*100)/100);
        
-       $('.problemList li:nth-child(1) em').html(data["Problem Solving"].tempo);
-       $('.problemList li:nth-child(2) em').html(data["Problem Solving"].acoustic);
-       $('.problemList li:nth-child(3) em').html(data["Problem Solving"].speech);
-       $('.problemList li:nth-child(4) em').html(data["Problem Solving"].energy);
-       $('.problemList li:nth-child(5) em').html(data["Problem Solving"].key);
-       $('.problemList li:nth-child(6) em').html(data["Problem Solving"].liveness);
-       $('.problemList li:nth-child(7) em').html(data["Problem Solving"].instrument);
+       $('.problemList li:nth-child(1) em').html(Math.round(data["Problem Solving"].tempo*100)/100);
+       $('.problemList li:nth-child(2) em').html(Math.round(data["Problem Solving"].acoustic*100)/100);
+       $('.problemList li:nth-child(3) em').html(Math.round(data["Problem Solving"].speech*100)/100);
+       $('.problemList li:nth-child(4) em').html(Math.round(data["Problem Solving"].energy*100)/100);
+       $('.problemList li:nth-child(5) em').html(Math.round(data["Problem Solving"].key*100)/100);
+       $('.problemList li:nth-child(6) em').html(Math.round(data["Problem Solving"].live*100)/100);
+       $('.problemList li:nth-child(7) em').html(Math.round(data["Problem Solving"].instr*100)/100);
        
-       $('.writingList li:nth-child(1) em').html(data.Writing.tempo);
-       $('.writingList li:nth-child(2) em').html(data.Writing.acoustic);
-       $('.writingList li:nth-child(3) em').html(data.Writing.speech);
-       $('.writingList li:nth-child(4) em').html(data.Writing.energy);
-       $('.writingList li:nth-child(5) em').html(data.Writing.key);
-       $('.writingList li:nth-child(6) em').html(data.Writing.liveness);
-       $('.writingList li:nth-child(7) em').html(data.Writing.instrument);
+       $('.writingList li:nth-child(1) em').html(Math.round(data.Writing.tempo*100)/100);
+       $('.writingList li:nth-child(2) em').html(Math.round(data.Writing.acoustic*100)/100);
+       $('.writingList li:nth-child(3) em').html(Math.round(data.Writing.speech*100)/100);
+       $('.writingList li:nth-child(4) em').html(Math.round(data.Writing.energy*100)/100);
+       $('.writingList li:nth-child(5) em').html(Math.round(data.Writing.key*100)/100);
+       $('.writingList li:nth-child(6) em').html(Math.round(data.Writing.live*100)/100);
+       $('.writingList li:nth-child(7) em').html(Math.round(data.Writing.instr*100)/100);
        
-       $('.exerciseList li:nth-child(1) em').html(data.Exercise.tempo);
-       $('.exerciseList li:nth-child(2) em').html(data.Exercise.acoustic);
-       $('.exerciseList li:nth-child(3) em').html(data.Exercise.speech);
-       $('.exerciseList li:nth-child(4) em').html(data.Exercise.energy);
-       $('.exerciseList li:nth-child(5) em').html(data.Exercise.key);
-       $('.exerciseList li:nth-child(6) em').html(data.Exercise.liveness);
-       $('.exerciseList li:nth-child(7) em').html(data.Exercise.instrument);
+       $('.exerciseList li:nth-child(1) em').html(Math.round(data.Exercise.tempo*100)/100);
+       $('.exerciseList li:nth-child(2) em').html(Math.round(data.Exercise.acoustic*100)/100);
+       $('.exerciseList li:nth-child(3) em').html(Math.round(data.Exercise.speech*100)/100);
+       $('.exerciseList li:nth-child(4) em').html(Math.round(data.Exercise.energy*100)/100);
+       $('.exerciseList li:nth-child(5) em').html(Math.round(data.Exercise.key*100)/100);
+       $('.exerciseList li:nth-child(6) em').html(Math.round(data.Exercise.live*100)/100);
+       $('.exerciseList li:nth-child(7) em').html(Math.round(data.Exercise.instr*100)/100);
        
-       $('.abstractList li:nth-child(1) em').html(data.Abstract.tempo);
-       $('.abstractList li:nth-child(2) em').html(data.Abstract.acoustic);
-       $('.abstractList li:nth-child(3) em').html(data.Abstract.speech);
-       $('.abstractList li:nth-child(4) em').html(data.Abstract.energy);
-       $('.abstractList li:nth-child(5) em').html(data.Abstract.key);
-       $('.abstractList li:nth-child(6) em').html(data.Abstract.liveness);
-       $('.abstractList li:nth-child(7) em').html(data.Abstract.instrument);
+       $('.abstractList li:nth-child(1) em').html(Math.round(data.Abstract.tempo*100)/100);
+       $('.abstractList li:nth-child(2) em').html(Math.round(data.Abstract.acoustic*100)/100);
+       $('.abstractList li:nth-child(3) em').html(Math.round(data.Abstract.speech*100)/100);
+       $('.abstractList li:nth-child(4) em').html(Math.round(data.Abstract.energy*100)/100);
+       $('.abstractList li:nth-child(5) em').html(Math.round(data.Abstract.key*100)/100);
+       $('.abstractList li:nth-child(6) em').html(Math.round(data.Abstract.live*100)/100);
+       $('.abstractList li:nth-child(7) em').html(Math.round(data.Abstract.instr*100)/100);
 
-       $('.creativityList li:nth-child(1) em').html(data.Creativity.tempo);
-       $('.creativityList li:nth-child(2) em').html(data.Creativity.acoustic);
-       $('.creativityList li:nth-child(3) em').html(data.Creativity.speech);
-       $('.creativityList li:nth-child(4) em').html(data.Creativity.energy);
-       $('.creativityList li:nth-child(5) em').html(data.Creativity.key);
-       $('.creativityList li:nth-child(6) em').html(data.Creativity.liveness);
-       $('.creativityList li:nth-child(7) em').html(data.Creativity.instrument);
+       $('.creativityList li:nth-child(1) em').html(Math.round(data.Creativity.tempo*100)/100);
+       $('.creativityList li:nth-child(2) em').html(Math.round(data.Creativity.acoustic*100)/100);
+       $('.creativityList li:nth-child(3) em').html(Math.round(data.Creativity.speech*100)/100);
+       $('.creativityList li:nth-child(4) em').html(Math.round(data.Creativity.energy*100)/100);
+       $('.creativityList li:nth-child(5) em').html(Math.round(data.Creativity.key*100)/100);
+       $('.creativityList li:nth-child(6) em').html(Math.round(data.Creativity.live*100)/100);
+       $('.creativityList li:nth-child(7) em').html(Math.round(data.Creativity.instr*100)/100);
        
-       $('.memoryList li:nth-child(1) em').html(data.Memory.tempo);
-       $('.memoryList li:nth-child(2) em').html(data.Memory.acoustic);
-       $('.memoryList li:nth-child(3) em').html(data.Memory.speech);
-       $('.memoryList li:nth-child(4) em').html(data.Memory.tempo);
-       $('.memoryList li:nth-child(5) em').html(data.Memory.energy);
-       $('.memoryList li:nth-child(6) em').html(data.Memory.key);
-       $('.memoryList li:nth-child(7) em').html(data.Memory.liveness);
+       $('.memoryList li:nth-child(1) em').html(Math.round(data.Memory.tempo*100)/100);
+       $('.memoryList li:nth-child(2) em').html(Math.round(data.Memory.acoustic*100)/100);
+       $('.memoryList li:nth-child(3) em').html(Math.round(data.Memory.speech*100)/100);
+       $('.memoryList li:nth-child(4) em').html(Math.round(data.Memory.energy*100)/100);
+       $('.memoryList li:nth-child(5) em').html(Math.round(data.Memory.key*100)/100);
+       $('.memoryList li:nth-child(6) em').html(Math.round(data.Memory.live*100)/100);
+       $('.memoryList li:nth-child(7) em').html(Math.round(data.Memory.instr*100)/100);
        
-       $('.sleepList li:nth-child(1) em').html(data.Sleep.tempo);
-       $('.sleepList li:nth-child(2) em').html(data.Sleep.acoustic);
-       $('.sleepList li:nth-child(3) em').html(data.Sleep.speech);
-       $('.sleepList li:nth-child(4) em').html(data.Sleep.tempo);
-       $('.sleepList li:nth-child(5) em').html(data.Sleep.energy);
-       $('.sleepList li:nth-child(6) em').html(data.Sleep.key);
-       $('.sleepList li:nth-child(7) em').html(data.Sleep.liveness);
+       $('.sleepList li:nth-child(1) em').html(Math.round(data.Sleep.tempo*100)/100);
+       $('.sleepList li:nth-child(2) em').html(Math.round(data.Sleep.acoustic*100)/100);
+       $('.sleepList li:nth-child(3) em').html(Math.round(data.Sleep.speech*100)/100);
+       $('.sleepList li:nth-child(4) em').html(Math.round(data.Sleep.energy*100)/100);
+       $('.sleepList li:nth-child(5) em').html(Math.round(data.Sleep.key*100)/100);
+       $('.sleepList li:nth-child(6) em').html(Math.round(data.Sleep.live*100)/100);
+       $('.sleepList li:nth-child(7) em').html(Math.round(data.Sleep.instr*100)/100);
      }
 });
 });
