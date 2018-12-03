@@ -73,7 +73,7 @@ app.get('/sort', function(request, response) {
   response.send("seen");
 });
 
-//Called as a service to check if the user is in our database as bring processed already
+//Called as a service to check if the user is in our database and has been processed already
 app.get('/userexists',function(request,response) {
   
   console.log("Seeing if user exists...");
@@ -121,7 +121,7 @@ app.get('/fetchKey',function(request,response) {
 
 // This is the main service from the backend. Here we take the audio analysis for all
 // the songs passed from the frontend and sort them into playlists based on what tasks
-// the most induce optimal performance.
+// induce the most optimal performance.
 app.post('/sort', function(request, response) {
 
   console.log("Received request to sort"); 

@@ -201,7 +201,7 @@ function getPlaylists(offset)
   });
 }
 
-//We take a unique playlist id, gathered from the above function, and and offset(for paging),
+//We take a unique playlist id, gathered from the above function, and offset(for paging),
 //and gather tracks for the playlists.
 //We parse the data and obtain the unique track ids 
 //These will be stored in our database and used to gather audio analysis.
